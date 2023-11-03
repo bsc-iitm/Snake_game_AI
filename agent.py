@@ -6,8 +6,8 @@ from Game import SnakeGameAI, Direction, Point
 from model import Linear_QNet, QTrainer
 from helper import plot
 
-MAX_MEMORY = 100_000
-BATCH_SIZE = 1000
+MAX_MEMORY = 200_000
+BATCH_SIZE = 2000
 LR = 0.001
 
 class Agent:
@@ -18,6 +18,7 @@ class Agent:
         self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
         self.model = Linear_QNet(11, 256, 3)
+        self.model.to('cuda')
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
 
@@ -65,7 +66,7 @@ class Agent:
             game.food.y > game.head.y  # food down
             ]
 
-        return np.array(state, dtype=int)
+        return np.array(state, dtype = int)
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done)) # popleft if MAX_MEMORY is reached
@@ -92,7 +93,8 @@ class Agent:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
-            state0 = torch.tensor(state, dtype=torch.float)
+            #print(state)
+            state0 = torch.tensor(state, dtype=torch.float,device='cuda')
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
             final_move[move] = 1

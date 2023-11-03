@@ -8,11 +8,17 @@ class Linear_QNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
         self.linear1 = nn.Linear(input_size, hidden_size)
-        self.linear2 = nn.Linear(hidden_size, output_size)
+        self.linear2 = nn.Linear(hidden_size,hidden_size)
+        self.linear3 = nn.Linear(hidden_size,hidden_size)
+        # self.linear4 = nn.Linear(hidden_size,hidden_size)
+        self.linear5 = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
         x = F.relu(self.linear1(x))
-        x = self.linear2(x)
+        x = F.relu(self.linear2(x))
+        x = F.relu(self.linear3(x))
+        #x = F.relu(self.linear4(x))
+        x = self.linear5(x)
         return x
 
     def save(self, file_name='model.pth'):
@@ -33,8 +39,8 @@ class QTrainer:
         self.criterion = nn.MSELoss()
 
     def train_step(self, state, action, reward, next_state, done):
-        state = torch.tensor(state, dtype=torch.float)
-        next_state = torch.tensor(next_state, dtype=torch.float)
+        state = torch.tensor(state, dtype=torch.float,device ='cuda')
+        next_state = torch.tensor(next_state, dtype=torch.float,device= 'cuda')
         action = torch.tensor(action, dtype=torch.long)
         reward = torch.tensor(reward, dtype=torch.float)
         # (n, x)
